@@ -122,6 +122,41 @@ describe Restforce::Concerns::API do
     end
   end
 
+  describe '.queryAll' do
+    let(:soql)        { 'Select count(Id) from Task' }
+    subject(:results) { client.queryAll(soql) }
+
+    context 'with mashify middleware' do
+      before do
+        client.stub :mashify? => true
+      end
+
+      it 'returns the body' do
+        client.should_receive(:api_get).
+          with('queryAll', :q => soql).
+          and_return(response)
+        expect(results).to eq response.body
+      end
+    end
+
+    context 'without mashify middleware' do
+      before do
+        client.stub :mashify? => false
+      end
+
+      it 'returns the records attribute of the body' do
+        records = double('records')
+        response.body.stub(:[]).
+          with('records').
+          and_return(records)
+        client.should_receive(:api_get).
+          with('queryAll', :q => soql).
+          and_return(response)
+        expect(results).to eq records
+      end
+    end
+  end
+
   describe '.search' do
     let(:sosl)        { 'FIND {bar}' }
     subject(:results) { client.search(sosl) }

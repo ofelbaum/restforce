@@ -131,6 +131,25 @@ module Restforce
         mashify? ? response.body : response.body['records']
       end
 
+      # Public: Executes the specified SOQL query.
+      # Unlike the Query resource, QueryAll will return records that have been deleted because of a merge or delete.
+      # QueryAll will also return information about archived Task and Event records.
+      #
+      # soql - A SOQL expression.
+      #
+      # Examples
+      #
+      #   # Count all Tasks
+      #   client.queryAll('select count(Id) from Task')
+      #   # => 42592
+      #
+      # Returns a Restforce::Collection if Restforce.configuration.mashify is true.
+      # Returns an Array of Hash for each record in the result if Restforce.configuration.mashify is false.
+      def queryAll(soql)
+        response = api_get 'queryAll', :q => soql
+        mashify? ? response.body : response.body['records']
+      end
+
       # Public: Perform a SOSL search
       #
       # sosl - A SOSL expression.
